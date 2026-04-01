@@ -1,47 +1,16 @@
-- Open Library Book Finder
-- Project Overview
+# React + Vite
 
- The Open Library Book Finder is a web application that allows users to search for books from a vast digital library. It uses the Open Library API to fetch real-time data about books, including titles, authors, publication years, and cover images.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-- Purpose
- The goal of this project is to:
+Currently, two official plugins are available:
 
-   1. Build a responsive and interactive book search application
-   2. Practice working with external APIs
-   3. Implement core React concepts such as state management, debouncing, and    conditional rendering
-   4. Create a visually appealing UI with dynamic features
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-- API Used
- 1. Open Library API
-   https://openlibrary.org/developers/api
- 2. This API provides access to a large collection of book data, including:
-      I. Book titles
-      II. Author names
-      III. Publish years
-      IV. Cover images
-      V. Subjects and descriptions
-- Features
-- Core Features
-     Search books by title or author
-     Display book cover images
-     Show publish year
-     Sort books by publish year (ascending/descending) 
-- UI Features
-     Responsive grid layout (bookshelf style)
-     Interactive book cards
-     Flip animation to view additional details  
-- React Concepts Implemented
-      Handling empty search states
-      Sorting arrays of objects
-      Debouncing 
-- Challenge Feature
- Reading Goal Counter
-    1. Users can mark books as "I've read this"
-    2. Counter increases dynamically
-- Technologies Used
- 1. React.js
- 2. HTML5
- 3. CSS
- 4. JavaScript
- 
-  
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
