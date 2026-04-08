@@ -1,18 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Search } from 'lucide-react';
 
-const SearchBar = ({ onSearch, onSort, sortOrder }) => {
-  const [inputValue, setInputValue] = useState('');
-
-  // Debounce logic
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onSearch(inputValue);
-    }, 600); // 600ms denounce
-
-    return () => clearTimeout(timer);
-  }, [inputValue, onSearch]);
-
+const SearchBar = ({ query, onSearch, filterOption, onFilter, sortOrder, onSort }) => {
   return (
     <div className="search-section">
       <div className="search-input-wrapper">
@@ -21,10 +10,20 @@ const SearchBar = ({ onSearch, onSort, sortOrder }) => {
           type="text"
           className="search-input"
           placeholder="Search books by title, author, or keyword..."
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          value={query}
+          onChange={(e) => onSearch(e.target.value)}
         />
       </div>
+      <select 
+        className="sort-select"
+        value={filterOption}
+        onChange={(e) => onFilter(e.target.value)}
+      >
+        <option value="all">Filter: All Books</option>
+        <option value="has_cover">Filter: Has Cover Image</option>
+        <option value="recent">Filter: Published after 2010</option>
+        <option value="classic">Filter: Published before 1950</option>
+      </select>
       <select 
         className="sort-select"
         value={sortOrder}

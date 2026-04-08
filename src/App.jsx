@@ -5,11 +5,12 @@ import BookList from './components/BookList';
 
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [books, setBooks] = useState(null); // null means hasn't searched yet
+  const [books, setBooks] = useState([]);
   const [sortOrder, setSortOrder] = useState('none');
   const [query, setQuery] = useState('');
+  const [filterOption, setFilterOption] = useState('all');
   
   const [readingGoal, setReadingGoal] = useState(() => {
     return parseInt(localStorage.getItem('readingGoal')) || 0;
@@ -36,30 +37,26 @@ function App() {
 
   const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
 
-  const fetchBooks = useCallback(async (searchQuery) => {
-    if (!searchQuery.trim()) {
-      setBooks(null);
+  useEffect(() => {
+    const fetchInitialBooks = async () => {
+      setLoading(true);
       setError('');
-      return;
-    }
-    setQuery(searchQuery);
-    setLoading(true);
-    setError('');
-
-    try {
-      const formattedQuery = encodeURIComponent(searchQuery.trim());
-      const res = await fetch(`https://openlibrary.org/search.json?q=${formattedQuery}&limit=24`);
-      if (!res.ok) throw new Error('Failed to fetch from Open Library API');
-      
-      const data = await res.json();
-      setBooks(data.docs || []);
-    } catch (err) {
-      console.error(err);
-      setError('An error occurred while fetching books.');
-      setBooks([]);
-    } finally {
-      setLoading(false);
-    }
+      try {
+        const res = await fetch(`https://openlibrary.org/search.json?q=programming+technology&limit=100`);
+        if (!res.ok) throw new Error('Failed to fetch from Open Library API');
+        
+        const data = await res.json();
+        setBooks(data.docs || []);
+      } catch (err) {
+        console.error(err);
+        setError('An error occurred while loading digital library.');
+        setBooks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchInitialBooks();
   }, []);
 
   const handleReadBook = (bookKey) => {
@@ -73,17 +70,41 @@ function App() {
     }
   };
 
-  // Derived state to sort books gracefully
-  const sortedBooks = React.useMemo(() => {
-    if (!books) return null;
-    if (sortOrder === 'none') return books;
+  // Derived state to search, filter, and sort books gracefully
+  const processedBooks = React.useMemo(() => {
+    if (!books) return [];
 
-    return [...books].sort((a, b) => {
-      const yearA = a.first_publish_year || 0;
-      const yearB = b.first_publish_year || 0;
-      return sortOrder === 'asc' ? yearA - yearB : yearB - yearA;
-    });
-  }, [books, sortOrder]);
+    // 1. Array Higher-Order Function: filter() & some() for Searching
+    let result = books;
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      result = result.filter(book => {
+        const matchTitle = book.title?.toLowerCase().includes(q);
+        const matchAuthor = book.author_name?.some(author => author.toLowerCase().includes(q));
+        return matchTitle || matchAuthor;
+      });
+    }
+
+    // 2. Array Higher-Order Function: filter() for Filtering
+    if (filterOption === 'has_cover') {
+      result = result.filter(book => book.cover_i);
+    } else if (filterOption === 'recent') {
+      result = result.filter(book => book.first_publish_year > 2010);
+    } else if (filterOption === 'classic') {
+      result = result.filter(book => book.first_publish_year < 1950);
+    }
+
+    // 3. Array Higher-Order Function: sort() for Sorting
+    if (sortOrder !== 'none') {
+      result = [...result].sort((a, b) => {
+        const yearA = a.first_publish_year || 0;
+        const yearB = b.first_publish_year || 0;
+        return sortOrder === 'asc' ? yearA - yearB : yearB - yearA;
+      });
+    }
+
+    return result;
+  }, [books, query, filterOption, sortOrder]);
 
   return (
     <div className="app-container">
@@ -94,12 +115,15 @@ function App() {
       />
       <main className="main-content">
         <SearchBar 
-          onSearch={fetchBooks}
+          query={query}
+          onSearch={setQuery}
+          filterOption={filterOption}
+          onFilter={setFilterOption}
           sortOrder={sortOrder}
           onSort={setSortOrder}
         />
         <BookList 
-          books={sortedBooks} 
+          books={processedBooks} 
           loading={loading} 
           error={error} 
           onRead={handleReadBook}
